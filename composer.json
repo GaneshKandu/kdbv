@@ -1,0 +1,31 @@
+{
+    "name": "ganeshkandu/kdbv",
+    "description": "database versioning tool",
+    "keywords": ["php","mysql","maria","versioning","upgrade","update","composer"],
+    "type": "library",
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Ganesh Kandu",
+            "email": "kanduganesh@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "ext-pdo": "*"
+    },
+    "support": {
+        "issues": "https://github.com/ganeshkandu/kdbv/issues",
+        "source": "https://github.com/ganeshkandu/kdbv"
+    },
+    "minimum-stability": "stable",
+	"autoload": {
+        "files": [
+            "src/table.php",
+            "src/btree.php",
+            "src/db.php",
+            "src/kdbv.php"
+		]
+	}
+}

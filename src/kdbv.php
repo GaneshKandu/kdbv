@@ -1,0 +1,62 @@
+<?php
+
+namespace kanduganesh;
+
+use PDO;
+
+class kdbv extends tabledef{
+	
+	function __construct($pdodsn){
+		$this->init($pdodsn);
+	}
+	
+	function init($pdodsn){
+		
+		$this->pdodsn = $pdodsn;
+		
+		$charset = 'utf8mb4';
+		
+		$dsn = "mysql:host={$pdodsn['HOST']};port={$pdodsn['PORT']};dbname={$pdodsn['DATABASE']};charset=$charset";
+		
+		$opt = [
+			PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+			PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+			PDO::ATTR_EMULATE_PREPARES   => false,
+		];
+
+		$this->pdo = new PDO($dsn, $pdodsn['USER'], $pdodsn['PASS'], $opt);
+	}
+	
+	function make(){
+		
+		if(file_exists($this->pdodsn['KDBV'])){
+			unlink($this->pdodsn['KDBV']);
+		}
+		db::init($this->pdodsn['KDBV']);
+		$this->setTables();
+		$this->setIndexs();
+		$this->setTblDesc();
+		$this->setRelation();
+	}
+	
+	function upgrade(){
+		
+		db::init($this->pdodsn['KDBV']);
+		$queries = $this->query();
+		$this->execute($queries);
+	}
+	
+	function query(){
+		
+		db::init($this->pdodsn['KDBV']);
+		$sql = array();
+		$sql = $this->push($sql , $this->dropKeys());
+		$sql = $this->push($sql , $this->dropIndexs());
+		$sql = $this->push($sql , $this->getQuery());
+		$sql = $this->push($sql , $this->getAlters());
+		$sql = $this->push($sql , $this->addKeys());
+		$sql = $this->push($sql , $this->addRelations());
+		return $sql;
+	}
+	
+}
