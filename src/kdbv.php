@@ -37,6 +37,7 @@ class kdbv extends tabledef{
 		$this->setIndexs();
 		$this->setTblDesc();
 		$this->setRelation();
+		$this->setTablestatus();
 	}
 	
 	function upgrade(){
@@ -56,6 +57,8 @@ class kdbv extends tabledef{
 		$sql = $this->push($sql , $this->getAlters());
 		$sql = $this->push($sql , $this->addKeys());
 		$sql = $this->push($sql , $this->addRelations());
+		$sql = $this->push($sql , $this->addTablestatus());
+		$sql = $this->push($sql , $this->add_auto_increment());
 		return $sql;
 	}
 	
