@@ -25,7 +25,7 @@ And update the composer
 $ composer update
 ```
 
-## creating kdbv databade
+## create kdbv databade
 
 ```php
 
@@ -64,7 +64,7 @@ $obj->make();
 
 ```
 
-## getting mysql quries in array
+## get mysql quries in array
 
 ```php
 
@@ -101,7 +101,7 @@ $sql = $obj->query();
 
 ```
 
-## Upgrading mysql database
+## Upgrad mysql database
 
 ```php
 
