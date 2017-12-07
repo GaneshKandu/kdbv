@@ -102,16 +102,17 @@ class tabledef{
 	*/
 	
 	function prepare_index_array($keys){
+		
 		$array = array();
 		
 		foreach($keys as $key){
 			if($key['Key_name'] == 'PRIMARY'){
-				$array[$key['Table']]['PRIMARY'][] = $key['Column_name'];
+				$array[$key['Table']]['PRIMARY'][] = array('NAME' => $key['Column_name'],'Sub_part' => $key['Sub_part']);
 			}else{
 				if($key['Non_unique']){
-					$array[$key['Table']]['index'][] = array('NAME' => $key['Key_name'],'COLUMN' => $key['Column_name']);
+					$array[$key['Table']]['index'][] = array('NAME' => $key['Key_name'],'COLUMN' => $key['Column_name'],'Sub_part' => $key['Sub_part']);
 				}else{
-					$array[$key['Table']]['unique'][] = array('NAME' => $key['Key_name'],'COLUMN' => $key['Column_name']);
+					$array[$key['Table']]['unique'][] = array('NAME' => $key['Key_name'],'COLUMN' => $key['Column_name'],'Sub_part' => $key['Sub_part']);
 				}
 			}
 		}
@@ -248,7 +249,7 @@ class tabledef{
 		return '';
 	}
 	
-	function generateDefaultCommand($definitions) {
+	function generateDefaultCommand($definitions){
 /* 
 		if ($definitions['Extra'] == 'auto_increment') {
 			return "AUTO_INCREMENT";
@@ -275,11 +276,11 @@ class tabledef{
 		}
 
 		if ($definitions['Null'] == 'NO' and $definitions['Default'] == '' and strpos(strtolower($definitions['Type']), 'char') !== false) {
-			//return "DEFAULT ''";
+			return '';//return "DEFAULT ''";
 		}
 
 		if ($definitions['Null'] == 'NO' and $definitions['Default'] == '' and strpos(strtolower($definitions['Type']), 'int') !== false) {
-			//return "DEFAULT 0";
+			return '';//return "DEFAULT 0";
 		}
 
 		return '';
@@ -345,34 +346,8 @@ class tabledef{
 		}else{
 			$return .= " NULL ";
 		}
-
-		if (in_array($column['Default'], array('CURRENT_TIMESTAMP', 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))) {
-            $return .= "DEFAULT {$column['Default']}";
-        }
-
-        if ($column['Default'] != '' and strpos($column['Type'], 'int') !== false) {
-            $return .= "DEFAULT {$column['Default']}";
-        }
-
-        if ($column['Default'] != '' and strpos($column['Type'], 'decimal') !== false) {
-            $return .= "DEFAULT {$column['Default']}";
-        }
-
-        if ($column['Default'] != '') {
-            $return .= "DEFAULT '{$column['Default']}'";
-        }
-
-        if ($column['Null'] == 'YES' and $column['Default'] == '') {
-            $return .= "DEFAULT NULL";
-        }
-
-        if ($column['Null'] == 'NO' and $column['Default'] == '' and strpos(strtolower($column['Type']), 'char') !== false) {
-            $return .= "DEFAULT ''";
-        }
-
-        if ($column['Null'] == 'NO' and $column['Default'] == '' and strpos(strtolower($column['Type']), 'int') !== false) {
-            $return .= "";
-        }
+		
+		$return .= $this->generateDefaultCommand($column);
 		
 		$return .= "\n";
 		
@@ -428,41 +403,7 @@ class tabledef{
 			$return[] = "ALTER TABLE `{$constraint['TABLE_NAME']}` DROP FOREIGN KEY `{$constraint['CONSTRAINT_NAME']}`;";
 
 		}
-		
-		$otables = $this->getTables();
-		
-		$tables = db::get('table');
-		
-		$tables = array_intersect($otables,$tables);
-		
-		//To include keys in defination
-		$this->key = true;
-		
-		foreach($tables as $table){
-			
-			$stmt = $this->pdo->query("SHOW FULL COLUMNS FROM $table;");
-			
-			$row = $stmt->fetchall();
-			
-			if($this->check_autoincreate($this->TableDefinition($table,$row))){
-				// key to reduce dublicate query
-				$return[$table.'_0'] = "ALTER TABLE `$table` MODIFY `id` INT;";
-			}
-			
-			if($this->check_primary_key($this->TableDefinition($table,$row))){
-				// key to reduce dublicate query
-				$return[$table.'_1'] = "ALTER TABLE `$table` DROP PRIMARY KEY;";
-			}
-			
-			if($column = $this->check_unique_key($this->TableDefinition($table,$row))){
-				// key to reduce dublicate query
-				$return[$table.'_2'] = "DROP INDEX `{$column['NAME']}` ON `$table`;";
-			}
-		}
-			
-		//To exclude keys in defination
-		$this->key = false;
-		
+
 		return array_values($return);
 	}
 
@@ -487,28 +428,46 @@ class tabledef{
 		foreach($indexs as $table => $index){
 			$temp = "ALTER TABLE `$table`";
 			$_temp = array();
+			//ADDING PRIMARY KEY
 			if(isset($index['PRIMARY'])){
-				$columns = implode(",",$this->tilde($index['PRIMARY']));
+				$_primary = array();
+				foreach($index['PRIMARY'] as $primary){
+					$sub_part = empty($primary['Sub_part'])?'':"({$primary['Sub_part']})";
+					$_primary[] = "`{$primary['NAME']}`$sub_part";
+				}
+				$columns = implode(",",$_primary);
 				$_temp[] = "ADD PRIMARY KEY ({$columns})";
 			}
-			
+			//ADDING INDEX KEY
 			if(isset($index['index'])){
 				$index_temp = array();
+				$sub_part = array();
 				foreach($index['index'] as $key){
 					$index_temp[$key['NAME']][] = $key['COLUMN'];
+					$sub_part[] = empty($key['Sub_part'])?'':"({$key['Sub_part']})";
 				}
 				foreach($index_temp as $name => $_keys){
-					$_temp[] = "ADD KEY `{$name}` (".implode(",",$this->tilde($_keys)).")";
+					$_indexs = array();
+					foreach($this->tilde($_keys) as $no => $val){
+						$_indexs[] = "$val{$sub_part[$no]}";
+					}
+					$_temp[] = "ADD KEY `{$name}` (".implode(",",$_indexs).")";
 				}
 			}
-			
+			//ADDING INDEX UNIQUE KEY
 			if(isset($index['unique'])){
 				$index_temp = array();
+				$sub_part = array();
 				foreach($index['unique'] as $key){
 					$index_temp[$key['NAME']][] = $key['COLUMN'];
+				$sub_part[] = empty($key['Sub_part'])?'':"({$key['Sub_part']})";
 				}
 				foreach($index_temp as $name => $_keys){
-					$_temp[] = "ADD UNIQUE KEY `{$name}` (".implode(",",$this->tilde($_keys)).")";
+					$_indexs = array();
+					foreach($this->tilde($_keys) as $no => $val){
+						$_indexs[] = "$val{$sub_part[$no]}";
+					}
+					$_temp[] = "ADD UNIQUE KEY `{$name}` (".implode(",",$_indexs).")";
 				}
 			}
 			
@@ -629,11 +588,37 @@ ADD CONSTRAINT `{$rel['CONSTRAINT_NAME']}` FOREIGN KEY (`{$rel['COLUMN_NAME']}`)
 		$indexs = $this->getIndexs();
 		$sql = array();
 		
+		//droping key index
 		foreach($indexs as $table => $index){
 			if(isset($index['index'])){
 				foreach($index['index'] as $keys){
 					// key to reduce dublicate query
-					$sql[$table.'_'.$keys['NAME']] = "ALTER TABLE `{$table}` DROP INDEX `{$keys['NAME']}`;";
+					$sql[$table.'_0_'.$keys['NAME']] = "ALTER TABLE `{$table}` DROP INDEX `{$keys['NAME']}`;";
+				}
+			}
+		}
+		//droping unique key index
+		foreach($indexs as $table => $index){
+			if(isset($index['unique'])){
+				foreach($index['unique'] as $keys){
+					// key to reduce dublicate query
+					$sql[$table.'_1_'.$keys['NAME']] = "ALTER TABLE `{$table}` DROP INDEX `{$keys['NAME']}`;";
+				}
+			}
+		}
+		//droping primary key
+		foreach($indexs as $table => $index){
+			if(isset($index['PRIMARY'])){
+				//modifing column to override not increament column structure to drop auto increament
+				$stmt = $this->pdo->query("SHOW FULL COLUMNS FROM $table;");
+				$row = $stmt->fetchall();
+				if($column = $this->check_autoincreate($this->TableDefinition($table,$row))){
+					$sql[$table.'_0_'.$row['Field']] = "ALTER TABLE `{$table}` MODIFY `{$column['NAME']}` INT;";
+				}
+				//droping primary key
+				foreach($index['PRIMARY'] as $keys){
+					// key to reduce dublicate query
+					$sql[$table.'_2'] = "ALTER TABLE `{$table}` DROP PRIMARY KEY;";
 				}
 			}
 		}

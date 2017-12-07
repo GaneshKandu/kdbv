@@ -29,11 +29,11 @@ $ composer update
 
 ```php
 
-// If you installed via composer, just use this code to requrie autoloader on the top of your projects.
-require 'vendor/autoload.php';
-
 // Using kdbv namespace
 namespace kanduganesh;
+
+// If you installed via composer, just use this code to require auto loader on the top of your projects.
+require 'vendor/autoload.php';
 
 // Initialize
 
@@ -64,14 +64,14 @@ $obj->make();
 
 ```
 
-## get mysql quries in array
+## get mysql queries in array
 
 ```php
 
-require 'vendor/autoload.php';
-
 // Using kdbv namespace
 namespace kanduganesh;
+
+require 'vendor/autoload.php';
 
 // Initialize
 
@@ -101,14 +101,14 @@ $sql = $obj->query();
 
 ```
 
-## Upgrad mysql database
+## Upgrade mysql database
 
 ```php
 
-require 'vendor/autoload.php';
-
 // Using kdbv namespace
 namespace kanduganesh;
+
+require 'vendor/autoload.php';
 
 // Initialize
 
@@ -143,3 +143,4 @@ $obj->upgrade();
 - [Ganesh Kandu](https://github.com/GaneshKandu)
 	- [Google+](https://plus.google.com/u/0/+ganeshkandu)
 	- [Linkedin](https://www.linkedin.com/in/ganesh-kandu-42b14373/)
+
