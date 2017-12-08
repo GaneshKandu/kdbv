@@ -11,6 +11,7 @@ class tabledef{
 	public $pdodsn = null;
 	public $sql = array();
 	public $key = false;
+	public $extra = false;
 	
 	function setTables(){
 		
@@ -85,7 +86,7 @@ class tabledef{
 			
 			if(!empty($stat['Comment'])){
 				$stat['Comment'] = $this->quoteIdent($stat['Comment']);
-				$temp[] = "COMMENT  = {$stat['Comment']}";
+				$temp[] = "COMMENT  = '{$stat['Comment']}'";
 			}
 			
 			$sql[] = "ALTER TABLE {$stat['Name']} ". implode(' ',$temp) .";";
@@ -107,12 +108,26 @@ class tabledef{
 		
 		foreach($keys as $key){
 			if($key['Key_name'] == 'PRIMARY'){
-				$array[$key['Table']]['PRIMARY'][] = array('NAME' => $key['Column_name'],'Sub_part' => $key['Sub_part']);
+				$array[$key['Table']]['PRIMARY'][] = array(
+					'NAME' => $key['Column_name'],
+					'Sub_part' => $key['Sub_part'],
+					'Index_type' => $key['Index_type']
+				);
 			}else{
 				if($key['Non_unique']){
-					$array[$key['Table']]['index'][] = array('NAME' => $key['Key_name'],'COLUMN' => $key['Column_name'],'Sub_part' => $key['Sub_part']);
+					$array[$key['Table']]['index'][] = array(
+						'NAME' => $key['Key_name'],
+						'COLUMN' => $key['Column_name'],
+						'Sub_part' => $key['Sub_part'],
+						'Index_type' => $key['Index_type']
+					);
 				}else{
-					$array[$key['Table']]['unique'][] = array('NAME' => $key['Key_name'],'COLUMN' => $key['Column_name'],'Sub_part' => $key['Sub_part']);
+					$array[$key['Table']]['unique'][] = array(
+						'NAME' => $key['Key_name'],
+						'COLUMN' => $key['Column_name'],
+						'Sub_part' => $key['Sub_part'],
+						'Index_type' => $key['Index_type']
+					);
 				}
 			}
 		}
@@ -170,11 +185,13 @@ class tabledef{
 	function setTblDesc(){
 		$td = array();
 		$tables = db::get('table');
+		$this->key = true;
 		foreach($tables as $table){
 			$stmt = $this->pdo->query("SHOW FULL COLUMNS FROM $table;");
 			$row = $stmt->fetchall();
 			db::set($table,$this->TableDefinition($table,$row));
 		}
+		$this->key = false;
 	}
 	
 	function TableDefinition($table,$columns){
@@ -250,11 +267,13 @@ class tabledef{
 	}
 	
 	function generateDefaultCommand($definitions){
-/* 
-		if ($definitions['Extra'] == 'auto_increment') {
-			return "AUTO_INCREMENT";
+ 
+		if($this->extra){
+			if($definitions['Extra'] == 'auto_increment'){
+				return "AUTO_INCREMENT";
+			}
 		}
-*/
+
 		if (in_array($definitions['Default'], array('CURRENT_TIMESTAMP', 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))) {
 			return "DEFAULT {$definitions['Default']}";
 		}
@@ -290,6 +309,7 @@ class tabledef{
 		$entries = array();
 		$primaryKey = array();
 		$keys = array();
+		//$this->extra = true;
 		foreach (db::get($ctable) as $columnName => $definitions) {
 			$entries[] = '`' . $columnName . '` ' . $definitions['Type'] . ' '. $this->generateCollation($definitions['Collation']) .' ' . $this->generateNullCommand($definitions['Null']) . ' ' . $this->generateDefaultCommand($definitions);
 
@@ -301,13 +321,14 @@ class tabledef{
 				$keys[] = $columnName;
 			}
 		}
-
+		//$this->extra = false;
+		
 		if (count($primaryKey) > 0) {
-			$entries[] = 'PRIMARY KEY (`' . implode('`,`', $primaryKey) . '`)';
+			//$entries[] = 'PRIMARY KEY (`' . implode('`,`', $primaryKey) . '`)';
 		}
 
 		foreach ($keys as $key) {
-			$entries[] = 'KEY (`' . $key . '`)';
+			//$entries[] = 'KEY (`' . $key . '`)';
 		}
 
 		return "CREATE TABLE IF NOT EXISTS `{$ctable}` (" . implode(',', $entries) . ");";
@@ -436,7 +457,7 @@ class tabledef{
 					$_primary[] = "`{$primary['NAME']}`$sub_part";
 				}
 				$columns = implode(",",$_primary);
-				$_temp[] = "ADD PRIMARY KEY ({$columns})";
+				$_temp[] = "\nADD PRIMARY KEY ({$columns})";
 			}
 			//ADDING INDEX KEY
 			if(isset($index['index'])){
@@ -451,7 +472,11 @@ class tabledef{
 					foreach($this->tilde($_keys) as $no => $val){
 						$_indexs[] = "$val{$sub_part[$no]}";
 					}
-					$_temp[] = "ADD KEY `{$name}` (".implode(",",$_indexs).")";
+					$_key = '';
+					if($key['Index_type'] != 'BTREE'){
+						$_key = $key['Index_type'];
+					}
+					$_temp[] = "\nADD $_key KEY `{$name}` (".implode(",",$_indexs).")";
 				}
 			}
 			//ADDING INDEX UNIQUE KEY
@@ -467,7 +492,7 @@ class tabledef{
 					foreach($this->tilde($_keys) as $no => $val){
 						$_indexs[] = "$val{$sub_part[$no]}";
 					}
-					$_temp[] = "ADD UNIQUE KEY `{$name}` (".implode(",",$_indexs).")";
+					$_temp[] = "\nADD UNIQUE KEY `{$name}` (".implode(",",$_indexs).")";
 				}
 			}
 			
@@ -574,11 +599,13 @@ ADD CONSTRAINT `{$rel['CONSTRAINT_NAME']}` FOREIGN KEY (`{$rel['COLUMN_NAME']}`)
 				$stmt = $this->pdo->prepare($query);
 				$stmt->execute(array());
 			}catch (PDOException $e) {
- 				//echo "$query\n";
-				//echo $e->getCode();
-				//echo "\n";
-				//echo $e->getMessage();
-				//echo "\n";
+				if(defined('DEBUG')){
+					echo "$query\n";
+					echo $e->getCode();
+					echo "\n";
+					echo $e->getMessage();
+					echo "\n";
+				}
 			} 
 		}
 	}
@@ -613,7 +640,7 @@ ADD CONSTRAINT `{$rel['CONSTRAINT_NAME']}` FOREIGN KEY (`{$rel['COLUMN_NAME']}`)
 				$stmt = $this->pdo->query("SHOW FULL COLUMNS FROM $table;");
 				$row = $stmt->fetchall();
 				if($column = $this->check_autoincreate($this->TableDefinition($table,$row))){
-					$sql[$table.'_0_'.$row['Field']] = "ALTER TABLE `{$table}` MODIFY `{$column['NAME']}` INT;";
+					$sql[$table.'_0_'.$column['NAME']] = "ALTER TABLE `{$table}` MODIFY `{$column['NAME']}` INT;";
 				}
 				//droping primary key
 				foreach($index['PRIMARY'] as $keys){
@@ -627,7 +654,7 @@ ADD CONSTRAINT `{$rel['CONSTRAINT_NAME']}` FOREIGN KEY (`{$rel['COLUMN_NAME']}`)
 	}
 	
 	function quoteIdent($field) {
-		return "`".str_replace("`","``",$field)."`";
+		return str_replace("`","``",$field);
 	}
 
 }

@@ -13,19 +13,48 @@ PHP 5.3+ and PDO extension installed
 
 ## Get Started
 
-### Install via composer
+## Install
 
-Add KDBV to composer.json configuration file.
+This library is designed to be installed via [Composer](https://getcomposer.org/doc/).
+
+Add the dependency into your projects composer.json.
 ```
-$ composer require ganeshkandu/kdbv
+{
+  "require": {
+    "ganeshkandu/kdbv": "*"
+  }
+}
 ```
 
-And update the composer
-```
-$ composer update
+Download the composer.phar
+``` bash
+curl -sS https://getcomposer.org/installer | php
 ```
 
-## create kdbv databade
+Install the library.
+``` bash
+php composer.phar install
+```
+
+## or
+
+> To add in in your dependencies
+
+``` bash
+php composer.phar require ganeshkandu/kdbv
+```
+
+## Autoloading
+
+This library requires an autoloader, if you aren't already using one you can include [Composers autoloader](https://getcomposer.org/doc/01-basic-usage.md#autoloading).
+
+``` php
+require('vendor/autoload.php');
+```
+
+## Usage
+
+### create kdbv databade
 
 ```php
 
@@ -64,7 +93,7 @@ $obj->make();
 
 ```
 
-## get mysql queries in array
+### get mysql queries in array
 
 ```php
 
@@ -101,7 +130,7 @@ $sql = $obj->query();
 
 ```
 
-## Upgrade mysql database
+### Upgrade mysql database
 
 ```php
 

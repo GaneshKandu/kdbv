@@ -18,11 +18,11 @@ class kdbv extends tabledef{
 		
 		$dsn = "mysql:host={$pdodsn['HOST']};port={$pdodsn['PORT']};dbname={$pdodsn['DATABASE']};charset=$charset";
 		
-		$opt = [
+		$opt = array(
 			PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
 			PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
 			PDO::ATTR_EMULATE_PREPARES   => false,
-		];
+		);
 
 		$this->pdo = new PDO($dsn, $pdodsn['USER'], $pdodsn['PASS'], $opt);
 	}

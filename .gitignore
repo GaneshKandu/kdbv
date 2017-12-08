@@ -51,3 +51,4 @@ table.db
 index.php
 vendor/*
 composer.lock
+log.txt
