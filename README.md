@@ -2,7 +2,7 @@
 # Auto Upgrade tool
 > upgrade your mysql database to current latest version from older version
 
-#### Give star to libarary if you like **[STAR++](https://github.com/GaneshKandu/kdbv/star)**
+#### Give star to libarary if you like **[STAR++](https://github.com/GaneshKandu/kdbv/stargazers)**
 
 ## Features
 * **Upgrade** - Database Upgrade
