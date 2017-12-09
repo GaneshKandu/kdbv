@@ -1,19 +1,20 @@
 
-> auto databade upgrade tool to reduce development database versioning task
+# Auto Upgrade tool
+> upgrade your mysql database to current latest version from older version
+
+#### Give star to libarary if you like **[STAR++](https://github.com/GaneshKandu/kdbv/star)**
 
 ## Features
-
 * **Upgrade** - Database Upgrade
-
-* **Easy** - Extremely easy to learn and use, friendly construction
-
+* **Easy** - Extremely easy to learn and use
+* 
 ## Requirement
 
 PHP 5.3+ and PDO extension installed
 
 ## Get Started
 
-## Install
+### Installation
 
 This library is designed to be installed via [Composer](https://getcomposer.org/doc/).
 
@@ -36,7 +37,7 @@ Install the library.
 php composer.phar install
 ```
 
-## or
+#### or
 
 > To add in in your dependencies
 
@@ -54,122 +55,72 @@ require('vendor/autoload.php');
 
 ## Usage
 
-### create kdbv databade
+### steps to perform
+* Create ```kdbv database``` using ```make``` function of your ```latest database```
+* deploy ```kdbv database``` with your application
+* You can simply overwrite latest version of your application on your old version of application ( **NOTES** latest version is deployed with ```kdbv database``` and ```kdbv library``` ) 
+* now you have your latest changed files with your old database which need to be update to new changes database structure
+* now ```upgrade``` your database using ```upgrade``` function
+* **ALL DONE ENJOY**
+* if you getting any issue [create an issue](https://github.com/GaneshKandu/kdbv/issues)
+
+### step 1
+
+#### Instantiate & load()
 
 ```php
-
 // Using kdbv namespace
 namespace kanduganesh;
-
-// If you installed via composer, just use this code to require auto loader on the top of your projects.
+// just use this code to require auto loader on the top of your projects.
 require 'vendor/autoload.php';
-
 // Initialize
-
-/*
-<host> database hostname
-<database> database name
-<user> database user
-<password> database password
-<port> database port
-kdbv database stores database structure of latest database
-<kdbvdb> database kdbv database
-*/
-
 $obj = new kdbv(array(
-	'HOST' => '<host>',
-	'DATABASE' => '<database>',
-	'USER' => '<user>',
-	'PASS' => '<password>',
-	'PORT' => '<port>',
-	'KDBV' => '<kdbvdb>',
+	'HOST' => '<mysql_host>',
+	'DATABASE' => '<mysql_database>',
+	'USER' => '<database_user>',
+	'PASS' => '<database_password>',
+	'PORT' => '<mysql_port>',
+	'KDBV' => '<kdbv_database_name>' //name of kdbv database
 ));
+```
+> ```<kdbv_database_name>``` is a name of ```kdbv database``` which to be deploy with your application
+( _kdbv database contain database structure of your latest application_ )
 
-// Enjoy
+### step 2
+> use ```$obj``` of step 1
+#### create ```kdbv database```
+
+```
 /*
 Create kdbv database
+notes :- during calling make function your mysql database should contain latest version database so it can store latest structure of database 
 */
-$obj->make();
-
+$obj->make(); 
 ```
-
-### get mysql queries in array
-
+### step 3
+> use ```$obj``` of step 1
+#### Get Mysql Upgrade Queries
 ```php
-
-// Using kdbv namespace
-namespace kanduganesh;
-
-require 'vendor/autoload.php';
-
-// Initialize
-
-/*
-<host> database hostname
-<database> database name
-<user> database user
-<password> database password
-<port> database port
-kdbv database stores database structure of latest database
-<kdbvdb> database kdbv database
-*/
-
-$obj = new kdbv(array(
-	'HOST' => '<host>',
-	'DATABASE' => '<database>',
-	'USER' => '<user>',
-	'PASS' => '<password>',
-	'PORT' => '<port>',
-	'KDBV' => '<kdbvdb>',
-));
-/*
-get array of mysql upgrade queries
-*/
-
-$sql = $obj->query();
-
+$sqls_queries = $obj->query();
+foreach($sqls_queries as $query){
+    echo $query."\n";
+}
 ```
-
+## or
 ### Upgrade mysql database
-
 ```php
-
-// Using kdbv namespace
-namespace kanduganesh;
-
-require 'vendor/autoload.php';
-
-// Initialize
-
 /*
-<host> database hostname
-<database> database name
-<user> database user
-<password> database password
-<port> database port
-kdbv database stores database structure of latest database
-<kdbvdb> database kdbv database
+upgrade mysql database
+notes :- during calling upgrade function your kdbv database should be deployed with your application
+Upgrade your old mysql database to your latest mysql database structure
 */
-
-$obj = new kdbv(array(
-	'HOST' => '<host>',
-	'DATABASE' => '<database>',
-	'USER' => '<user>',
-	'PASS' => '<password>',
-	'PORT' => '<port>',
-	'KDBV' => '<kdbvdb>',
-));
-
-/*
-upgrading database
-*/
-
 $obj->upgrade();
-
 ```
 #### Maintainers
 
 - [Ganesh Kandu](https://github.com/GaneshKandu)
 	- [Google+](https://plus.google.com/u/0/+ganeshkandu)
 	- [Linkedin](https://www.linkedin.com/in/ganesh-kandu-42b14373/)
+	- [EMail](mailto:kanduganesh@gmail.com)
+	- [Follow](https://github.com/GaneshKandu)
 
