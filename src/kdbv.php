@@ -56,9 +56,9 @@ class kdbv extends tabledef{
 		$sql = $this->push($sql , $this->getQuery());
 		$sql = $this->push($sql , $this->getAlters());
 		$sql = $this->push($sql , $this->addKeys());
-		$sql = $this->push($sql , $this->addRelations());
 		$sql = $this->push($sql , $this->addTablestatus());
 		$sql = $this->push($sql , $this->add_auto_increment());
+		$sql = $this->push($sql , $this->addRelations());
 		return $sql;
 	}
 	

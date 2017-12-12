@@ -52,3 +52,4 @@ index.php
 vendor/*
 composer.lock
 log.txt
+check.php

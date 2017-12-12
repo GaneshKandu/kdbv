@@ -213,7 +213,14 @@ class tabledef{
 	}
 	
 	function setRelation(){
-		$stmt = $this->pdo->query('
+		
+		$row = $this->getRelation();
+
+		db::set('.RELATIONS',$row);
+	}
+	
+	function getRelation(){
+		/*
 		SELECT 
 		  `TABLE_SCHEMA`,                          -- Foreign key schema
 		  `TABLE_NAME`,                            -- Foreign key table
@@ -227,14 +234,7 @@ class tabledef{
 		WHERE
 		  `TABLE_SCHEMA` = SCHEMA()                -- Detect current schema in USE 
 		  AND `REFERENCED_TABLE_NAME` IS NOT NULL; -- Only tables with foreign keys;
-		');
-
-		$row = $stmt->fetchall();
-
-		db::set('.RELATIONS',$row);
-	}
-	
-	function getRelation(){
+		*/
 		$stmt = $this->pdo->query('
 		SELECT 
 		  `TABLE_SCHEMA`,                          -- Foreign key schema
@@ -243,7 +243,14 @@ class tabledef{
 		  `REFERENCED_TABLE_SCHEMA`,               -- Origin key schema
 		  `REFERENCED_TABLE_NAME`,                 -- Origin key table
 		  `REFERENCED_COLUMN_NAME`,                -- Origin key column
-		  `CONSTRAINT_NAME`                        -- constraint name
+		  `CONSTRAINT_NAME`,                       -- constraint name
+		  (SELECT CONCAT(`UPDATE_RULE`,\'|\',`DELETE_RULE`)
+		  FROM `INFORMATION_SCHEMA`.`REFERENTIAL_CONSTRAINTS`
+		  WHERE
+		  `INFORMATION_SCHEMA`.`REFERENTIAL_CONSTRAINTS`.`CONSTRAINT_SCHEMA` = `INFORMATION_SCHEMA`.`KEY_COLUMN_USAGE`.`TABLE_SCHEMA`
+		  AND 
+		  `INFORMATION_SCHEMA`.`REFERENTIAL_CONSTRAINTS`.`CONSTRAINT_NAME` = `INFORMATION_SCHEMA`.`KEY_COLUMN_USAGE`.`CONSTRAINT_NAME`
+		  ) AS `CASCADE_RULE`
 		FROM
 		  `INFORMATION_SCHEMA`.`KEY_COLUMN_USAGE`  -- Will fail if user don\'t have privilege
 		WHERE
@@ -305,13 +312,20 @@ class tabledef{
 		return '';
 	}
 	
+	function generateDefaultComment($definitions){
+		if(!empty($definitions['Comment'])){
+			return "COMMENT '{$definitions['Comment']}'";
+		}
+		return '';
+	}
+	
 	function create_table($ctable){
 		$entries = array();
 		$primaryKey = array();
 		$keys = array();
 		//$this->extra = true;
 		foreach (db::get($ctable) as $columnName => $definitions) {
-			$entries[] = '`' . $columnName . '` ' . $definitions['Type'] . ' '. $this->generateCollation($definitions['Collation']) .' ' . $this->generateNullCommand($definitions['Null']) . ' ' . $this->generateDefaultCommand($definitions);
+			$entries[] = '`' . $columnName . '` ' . $definitions['Type'] . ' '. $this->generateCollation($definitions['Collation']) .' ' . $this->generateNullCommand($definitions['Null']) . ' ' . $this->generateDefaultCommand($definitions) . ' ' . $this->generateDefaultComment($definitions);
 
 			if ($definitions['Key'] == 'PRI') {
 				$primaryKey[] = $columnName;
@@ -370,8 +384,6 @@ class tabledef{
 		
 		$return .= $this->generateDefaultCommand($column);
 		
-		$return .= "\n";
-		
 		return $return;
 	}
 	
@@ -392,7 +404,7 @@ class tabledef{
 				$mod_column = array_intersect(array_keys($ocolumn),array_keys($ncolumn));
 				
 				foreach($add_column as $column){
-					$sql[] = "ALTER TABLE $table ADD COLUMN `$column` ".$this->column_defination($ncolumn[$column]).";";
+					$sql[] = "ALTER TABLE $table ADD COLUMN `$column` ".$this->column_defination($ncolumn[$column])." ".$this->generateDefaultComment($ncolumn[$column]).";";
 				}
 				
 				foreach($drop_column as $column){
@@ -406,7 +418,7 @@ class tabledef{
 					$modify2 = array_diff($ocolumn[$column],$ncolumn[$column]);
 					$modify = array_merge($modify1,$modify2);
 					if(count($modify)){
-						$sql[] = "ALTER TABLE $table MODIFY COLUMN `$column`".$this->column_defination($ncolumn[$column]).";";
+						$sql[] = "ALTER TABLE $table MODIFY COLUMN `$column`".$this->column_defination($ncolumn[$column])." ". $this->generateDefaultComment($ncolumn[$column]) .";";
 					}
 				}
 			}
@@ -513,6 +525,19 @@ class tabledef{
 		} 
 		return $return;
 	}
+	/* ON UPDATE CASCADE ON DELETE CASCADE */
+	function cascade_rule($cascade_rule){
+		$cascade = explode("|",$cascade_rule);
+		$return = '';
+		/* `UPDATE_RULE`|`DELETE_RULE` */
+		if($cascade[0] == 'CASCADE'){
+			$return .= ' ON UPDATE CASCADE ';
+		}
+		if($cascade[1] == 'CASCADE'){
+			$return .= ' ON DELETE CASCADE ';
+		}
+		return $return;
+	}
 	
 	/*
 	ALTER TABLE `[TABLE_NAME]`
@@ -524,7 +549,7 @@ class tabledef{
 		$rels = db::get('.RELATIONS');
 		foreach($rels as $rel){
 			$sql[] = "ALTER TABLE `{$rel['TABLE_NAME']}`
-ADD CONSTRAINT `{$rel['CONSTRAINT_NAME']}` FOREIGN KEY (`{$rel['COLUMN_NAME']}`) REFERENCES `{$rel['REFERENCED_TABLE_NAME']}` (`{$rel['REFERENCED_COLUMN_NAME']}`);";
+ADD CONSTRAINT `{$rel['CONSTRAINT_NAME']}` FOREIGN KEY (`{$rel['COLUMN_NAME']}`) REFERENCES `{$rel['REFERENCED_TABLE_NAME']}` (`{$rel['REFERENCED_COLUMN_NAME']}`) {$this->cascade_rule($rel['CASCADE_RULE'])};";
 		}
 		
 		return $sql;
@@ -599,7 +624,7 @@ ADD CONSTRAINT `{$rel['CONSTRAINT_NAME']}` FOREIGN KEY (`{$rel['COLUMN_NAME']}`)
 				$stmt = $this->pdo->prepare($query);
 				$stmt->execute(array());
 			}catch (PDOException $e) {
-				if(defined('DEBUG')){
+				if(defined('KDBV_DEBUG')){
 					echo "$query\n";
 					echo $e->getCode();
 					echo "\n";

@@ -7,7 +7,7 @@
 ## Features
 * **Upgrade** - Database Upgrade
 * **Easy** - Extremely easy to learn and use
-* 
+
 ## Requirement
 
 PHP 5.3+ and PDO extension installed
