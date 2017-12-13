@@ -477,12 +477,12 @@ class tabledef{
 				$sub_part = array();
 				foreach($index['index'] as $key){
 					$index_temp[$key['NAME']][] = $key['COLUMN'];
-					$sub_part[] = empty($key['Sub_part'])?'':"({$key['Sub_part']})";
+					$sub_part[$key['NAME']][] = empty($key['Sub_part'])?'':"({$key['Sub_part']})";
 				}
 				foreach($index_temp as $name => $_keys){
 					$_indexs = array();
 					foreach($this->tilde($_keys) as $no => $val){
-						$_indexs[] = "$val{$sub_part[$no]}";
+						$_indexs[] = "$val{$sub_part[$name][$no]}";
 					}
 					$_key = '';
 					if($key['Index_type'] != 'BTREE'){
@@ -497,12 +497,12 @@ class tabledef{
 				$sub_part = array();
 				foreach($index['unique'] as $key){
 					$index_temp[$key['NAME']][] = $key['COLUMN'];
-				$sub_part[] = empty($key['Sub_part'])?'':"({$key['Sub_part']})";
+				$sub_part[$key['NAME']][] = empty($key['Sub_part'])?'':"({$key['Sub_part']})";
 				}
 				foreach($index_temp as $name => $_keys){
 					$_indexs = array();
 					foreach($this->tilde($_keys) as $no => $val){
-						$_indexs[] = "$val{$sub_part[$no]}";
+						$_indexs[] = "$val{$sub_part[$name][$no]}";
 					}
 					$_temp[] = "\nADD UNIQUE KEY `{$name}` (".implode(",",$_indexs).")";
 				}
