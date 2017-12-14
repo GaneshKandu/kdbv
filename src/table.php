@@ -336,14 +336,15 @@ class tabledef{
 			}
 		}
 		//$this->extra = false;
-		
+		/* 
 		if (count($primaryKey) > 0) {
-			//$entries[] = 'PRIMARY KEY (`' . implode('`,`', $primaryKey) . '`)';
+			$entries[] = 'PRIMARY KEY (`' . implode('`,`', $primaryKey) . '`)';
 		}
 
 		foreach ($keys as $key) {
-			//$entries[] = 'KEY (`' . $key . '`)';
+			$entries[] = 'KEY (`' . $key . '`)';
 		}
+		*/
 
 		return "CREATE TABLE IF NOT EXISTS `{$ctable}` (" . implode(',', $entries) . ");";
 	}
