@@ -2,6 +2,9 @@
 # Auto Upgrade tool
 > upgrade your mysql database to current latest version from older version
 
+## How its works
+Like the source files in our project,the database is constantly changing too. That’s why we also need a way to track the changes of database versioning but using ```kdbv``` you don't need to keep track of changes just run make to create ```kdbv database``` and deploy with your latast change and run ```update``` function to change database automaticly database upgraded thats is it
+
 #### Give star to libarary if you like **[STAR++](https://github.com/GaneshKandu/kdbv/stargazers)**
 
 ## Features
