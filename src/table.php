@@ -15,17 +15,8 @@ class tabledef{
 	
 	function setTables(){
 		
-		$stmt = $this->pdo->query('SHOW TABLES;');
+		db::set('table',$this->getTables());
 		
-		$row = $stmt->fetchall();
-
-		$tables = array();
-
-		foreach($row as $table){
-			$tables[] = $table["Tables_in_{$this->pdodsn['DATABASE']}"];
-		}
-		
-		db::set('table',$tables);
 	}
 	
 	function getTables(){
