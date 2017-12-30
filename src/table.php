@@ -11,7 +11,6 @@ class tabledef{
 	public $pdodsn = null;
 	public $sql = array();
 	public $key = false;
-	public $extra = false;
 	
 	function setTables(){
 		
@@ -264,13 +263,13 @@ class tabledef{
 		return '';
 	}
 	
-	function generateDefaultCommand($definitions){
- 
-		if($this->extra){
-			if($definitions['Extra'] == 'auto_increment'){
-				return "AUTO_INCREMENT";
-			}
+	function generateDefault($definitions){
+		if($definitions['Extra'] != 'auto_increment'){
+			return $definitions['Extra'];
 		}
+	}
+	
+	function generateDefaultCommand($definitions){
 
 		if (in_array($definitions['Default'], array('CURRENT_TIMESTAMP', 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))) {
 			return "DEFAULT {$definitions['Default']}";
@@ -314,9 +313,8 @@ class tabledef{
 		$entries = array();
 		$primaryKey = array();
 		$keys = array();
-		//$this->extra = true;
 		foreach (db::get($ctable) as $columnName => $definitions) {
-			$entries[] = '`' . $columnName . '` ' . $definitions['Type'] . ' '. $this->generateCollation($definitions['Collation']) .' ' . $this->generateNullCommand($definitions['Null']) . ' ' . $this->generateDefaultCommand($definitions) . ' ' . $this->generateDefaultComment($definitions);
+			$entries[] = '`' . $columnName . '` ' . $definitions['Type'] . ' '. $this->generateCollation($definitions['Collation']) .' ' . $this->generateNullCommand($definitions['Null']) . ' ' . $this->generateDefaultCommand($definitions) . ' '. $this->generateDefault($definitions) .' ' . $this->generateDefaultComment($definitions);
 
 			if ($definitions['Key'] == 'PRI') {
 				$primaryKey[] = $columnName;
@@ -326,7 +324,7 @@ class tabledef{
 				$keys[] = $columnName;
 			}
 		}
-		//$this->extra = false;
+		
 		/* 
 		if (count($primaryKey) > 0) {
 			$entries[] = 'PRIMARY KEY (`' . implode('`,`', $primaryKey) . '`)';

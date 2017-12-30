@@ -7,12 +7,16 @@ use PDO;
 class kdbv extends tabledef{
 	
 	function __construct($pdodsn){
+		
+		db::$notation['|:prefix:|'] = $pdodsn['PREFIX'];
+		
 		$this->init($pdodsn);
 	}
 	
 	function init($pdodsn){
 		
 		$this->pdodsn = $pdodsn;
+		
 		
 		$charset = 'utf8mb4';
 		

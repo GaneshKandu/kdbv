@@ -84,6 +84,7 @@ $obj = new kdbv(array(
 	'PASS' => '<database_password>',
 	'PORT' => '<mysql_port>',
 	'KDBV' => '<kdbv_database_name>' //name of kdbv database
+	'PREFIX' => '<table prefix>', //table prefix
 ));
 ```
 > ```<kdbv_database_name>``` is a name of ```kdbv database``` which to be deploy with your application
