@@ -22,9 +22,9 @@
 * A ```kdbv library``` is code that changes the database structure between versions
 
 ## How its works
-Like the source files in our project,the database is constantly changing too. That’s why we also need a way to track the changes of database versioning but using ```kdbv``` you don't need to keep track of changes just run make to create ```kdbv database``` and deploy with your latast change and run ```update``` function to change database automaticly database upgraded thats is it
+Like the source files in our project,the database is constantly changing too. That’s why we also need a way to track the changes of database versioning but using ```kdbv``` you don't need to keep track of changes just run make to create ```kdbv database``` and deploy with your latest change and run ```update``` function to change database automatically database upgraded thats is it
 
-#### Give star to libarary if you like **[STAR++](https://github.com/GaneshKandu/kdbv/stargazers)**
+#### Give star to library if you like **[STAR++](https://github.com/GaneshKandu/kdbv/stargazers)**
 
 ## Features
 * **Upgrade** - Database Upgrade
@@ -67,7 +67,7 @@ php composer.phar install
 php composer.phar require ganeshkandu/kdbv
 ```
 
-## Autoloading
+## Auto loading
 
 This library requires an autoloader, if you aren't already using one you can include [Composers autoloader](https://getcomposer.org/doc/01-basic-usage.md#autoloading).
 
@@ -141,7 +141,7 @@ $obj->upgrade();
 ```
 
 ## Best practices
-* run ```$obj->make();``` aall time you when you release new application version with change database structure
+* run ```$obj->make();``` all time you when you release new application version with change database structure
 
 
 #### Maintainers
