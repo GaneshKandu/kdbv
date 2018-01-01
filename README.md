@@ -1,5 +1,5 @@
 
-# mysql databade auto schema migration tool 
+# mysql database auto schema migration tool 
 #### ``kdbv library``  migrations between versions of a application.
 
 ![](https://github.com/GaneshKandu/kdbv/blob/master/.github/kdbv.png)
