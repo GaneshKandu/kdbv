@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * mysql database auto schema migration tool 
+ *
+ * @author     Ganesh Kandu <kanduganesh@gmail.com>
+ * @copyright  2016-2017 Ganesh Kandu
+ * <https://github.com/GaneshKandu/kdbv>
+ */
+
 namespace kanduganesh;
 
 class db{
