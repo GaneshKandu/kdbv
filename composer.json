@@ -1,6 +1,6 @@
 {
     "name": "ganeshkandu/kdbv",
-    "description": "database auto upgrade tool",
+    "description": "mysql database auto schema migration tool ",
     "keywords": ["composer","mysql","php","mysql-database","update","upgrade","upgrade-tool","database-migrations","versioning","version-control","version-changer","latest-version","mariadb","automation","autodeploy","schema","database","data","packagist"],
     "type": "library",
     "license": "GPL-3.0",
@@ -14,6 +14,7 @@
     "require": {
         "php": ">=5.3.0",
         "ext-pdo": "*"
+        "ext-json": "*"
     },
     "support": {
         "issues": "https://github.com/ganeshkandu/kdbv/issues",
