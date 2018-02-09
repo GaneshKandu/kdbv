@@ -102,7 +102,7 @@ $obj = new kdbv(array(
 	'USER' => '<database_user>',
 	'PASS' => '<database_password>',
 	'PORT' => '<mysql_port>',
-	'KDBV' => '<kdbv_database_name>' //name of kdbv database
+	'KDBV' => '<kdbv_database_name>', //name of kdbv database
 	'PREFIX' => '<table prefix>', //table prefix
 ));
 ```
