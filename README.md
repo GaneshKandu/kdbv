@@ -2,7 +2,7 @@
 # mysql database auto schema migration tool 
 #### ``kdbv library``  migrations between versions of a application.
 
-![](https://github.com/GaneshKandu/kdbv/blob/master/.github/kdbv.png)
+![](https://github.com/GaneshKandu/kdbv/blob/master/.github/kdbv_image.png)
 
 > upgrade your mysql database to current latest version from older version
 
