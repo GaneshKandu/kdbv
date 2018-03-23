@@ -1,28 +1,15 @@
 
 # mysql database auto schema migration tool 
-#### ``kdbv library``  migrations between versions of a application.
 
-![](https://github.com/GaneshKandu/kdbv/blob/master/.github/kdbv_image.png)
+## how it works
+> ```kdbv``` is Compare the structure of old database and latest database structure and make required queries to migrate old database
 
-> upgrade your mysql database to current latest version from older version
-
-## Common DB versioning problems
-* Where should I keep track of schema changes?
-* What changed since last production push?
-* Did I apply this patch already to this server?
-* Did I run the migrations on this copy of the app?
-* Did I run the update script after updating the schema?
-
-## How kdbv library helps
-
-* Each DB change encapsulated in a single migration ```kdbv database file```
-* Deployment script automatically runs all necessary migration sql queries on production database immediately after code deploys
-* Nothing to remember / eliminates human factor
-* Easy to test, easy to reproduce
-* A ```kdbv library``` is code that changes the database structure between versions
-
-## How its works
-Like the source files in our project,the database is constantly changing too. That’s why we also need a way to track the changes of database versioning but using ```kdbv``` you don't need to keep track of changes just run make to create ```kdbv database``` and deploy with your latest change and run ```update``` function to change database automatically database upgraded thats is it
+- Create ```kdbv``` database
+  - dbv database is a single file witch contains database structure
+  - its created using ```make``` function
+- ```upgrade``` function is Compare the contents of your old databases with ```kdbv``` file  ( witch contains latest database structure ) and Automate your data migrations from old to latest
+- using ```query``` function you can get all sql queries. that need to migrate database
+  - its return array of queries
 
 #### Give star to library if you like **[STAR++](https://github.com/GaneshKandu/kdbv/stargazers)**
 
