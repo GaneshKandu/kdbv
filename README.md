@@ -1,6 +1,6 @@
 
 # mysql database auto schema migration tool 
-
+![](https://github.com/GaneshKandu/kdbv/blob/master/.github/kdbv_image.png)
 ## how it works
 > ```kdbv``` is Compare the structure of old database and latest database structure and make required queries to migrate old database
 
