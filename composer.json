@@ -28,5 +28,6 @@
             "src/db.php",
             "src/kdbv.php"
 		]
-	}
+	},
+    "bin": ["bin/kdbv"]
 }
