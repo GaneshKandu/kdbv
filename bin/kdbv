@@ -1,3 +1,93 @@
 #!/usr/bin/env php
 <?php
 
+namespace kanduganesh;
+
+//print_r(parse_url('mysql://[[softdbuser]]:[[softdbpass]]@[[softdbhost]]/[[softdb]]'));
+
+foreach ([__DIR__ . '/../../../autoload.php', __DIR__ . '/../vendor/autoload.php'] as $file) {
+    if (file_exists($file)) {
+        require $file;
+        break;
+    }
+}
+
+$input = fopen ("php://stdin","r");
+
+echo "    __       ____        \n   / /______/ / /_ _   __\n  / //_/ __  / __ \ | / /\n / ,< / /_/ / /_/ / |/ / \n/_/|_|\__,_/_.___/|___/  \n\n";
+echo "Usage:\n\tcommand [dsn] [arguments]\n\n";
+echo "Ex.:\n\tphp {$argv[0]} [DSN] [ARGUMENTS]\n\n";
+echo "DSN:\n\t<username>:<password>@<host>:<port>/<database>\n\n";
+echo "ARGUMENTS:\n\tmake\t\tcreates kdbv database";
+echo "\n\tupgrade\t\tupgrade database\n\n";
+
+$_dsn = get_DSN($input);
+
+if(empty($_dsn['prefix'])){
+	$_dsn['prefix'] = '';
+}
+
+while(count($_dsn) < 7){
+	echo "\n\nALL FIELD ARE REQIRED\n\n";
+	$_dsn = get_DSN($input);
+}
+
+$obj = get_OBJ($_dsn);
+while(!get_ACTION($input,$obj)){}
+
+fclose($input);
+
+function get_DSN($input,$dsn = null){
+	if($dsn == null){
+		echo "ENTER DSN:";
+		$dsn = fgets($input);
+		$dsn = trim('mysql://'.$dsn);
+	}
+	$_dsn = parse_url($dsn);
+	if(empty($_dsn['port'])){
+		$_dsn['port'] = 3306;
+	}
+	$_dsn['path'] = trim($_dsn['path'],'/');
+	$_dsn = get_prefix_kdbv($input,$_dsn);
+	unset($_dsn['scheme']);
+	return array_filter(array_map('trim',$_dsn));
+}
+
+function get_ACTION($input,$obj){
+	echo "ACTION:";
+	$action = trim(fgets($input));
+	switch($action){
+		case 'make':
+			$obj->make();
+			echo "successfully kdbv database created";
+			return true;
+		break;
+		case 'upgrade':
+			$obj->upgrade();
+			echo "Database upgraded successfully";
+			return true;
+		break;
+		default :
+			return false;
+	}
+}
+
+function get_OBJ($_dsn){
+	return new kdbv(array(
+		'HOST' => $_dsn['host'],
+		'DATABASE' => $_dsn['path'],
+		'USER' => $_dsn['user'],
+		'PASS' => $_dsn['pass'],
+		'PORT' => $_dsn['port'],
+		'KDBV' => $_dsn['kdbv'], //name of kdbv database
+		'PREFIX' => $_dsn['prefix'], //table prefix
+	));
+}
+
+function get_prefix_kdbv($input,$_dsn){
+	echo "ENTER TABLE PREFIX:";
+	$_dsn['prefix'] = fgets($input);
+	echo "ENTER KDBV FILE LOCATION:";
+	$_dsn['kdbv'] = fgets($input);
+	return $_dsn;
+}
